@@ -13,6 +13,16 @@
 # shellcheck disable=SC3028
 NVM_SCRIPT_SOURCE="$_"
 
+BASEDIR="/media/DATA/.development/sources/GIT/LOCAL/nvm"; #BASEDIR=$(dirname $(readlink -f ${0};););
+
+# ln -fs ${BASEDIR} /usr/share/nvm
+# ln -fs ${BASEDIR}/nvm.sh /usr/bin/nvm
+# mkdir -p ${BASEDIR}/{bin,workspace}/
+# ln -fs ${BASEDIR}/bin/node /usr/bin/node
+# ln -fs ${BASEDIR}/bin/npm /usr/bin/npm
+
+## user $(npm root -g;) to get node_modules location
+
 nvm_is_zsh() {
   [ -n "${ZSH_VERSION-}" ]
 }
@@ -345,7 +355,7 @@ if [ -z "${NVM_DIR-}" ]; then
     # shellcheck disable=SC2169,SC3054
     NVM_SCRIPT_SOURCE="${BASH_SOURCE[0]}"
   fi
-  NVM_DIR="$(nvm_cd ${NVM_CD_FLAGS} "$(dirname "${NVM_SCRIPT_SOURCE:-$0}")" >/dev/null && \pwd)"
+  NVM_DIR="${BASEDIR}/workspace"; #NVM_DIR="$(nvm_cd ${NVM_CD_FLAGS} "$(dirname "${NVM_SCRIPT_SOURCE:-$0}")" >/dev/null && \pwd)"
   export NVM_DIR
 else
   # https://unix.stackexchange.com/a/198289
@@ -2434,6 +2444,10 @@ nvm_use_if_needed() {
     return
   fi
   nvm use "$@"
+  NVM_LS_CURRENT_NODE_PATH=$(command which node 2>/dev/null;);
+  NVM_LS_CURRENT_NPM_PATH=$(command which npm 2>/dev/null;);
+  ln -fs ${NVM_LS_CURRENT_NODE_PATH} ${BASEDIR}/bin/;
+  ln -fs ${NVM_LS_CURRENT_NPM_PATH} ${BASEDIR}/bin/;
 }
 
 nvm_install_npm_if_needed() {
@@ -3645,6 +3659,10 @@ nvm() {
       if [ -n "${NVM_USE_OUTPUT-}" ] && [ "${NVM_SILENT:-0}" -ne 1 ]; then
         nvm_echo "${NVM_USE_OUTPUT}"
       fi
+      NVM_LS_CURRENT_NODE_PATH=$(command which node 2>/dev/null;);
+      NVM_LS_CURRENT_NPM_PATH=$(command which npm 2>/dev/null;);
+      ln -fs ${NVM_LS_CURRENT_NODE_PATH} ${BASEDIR}/bin/;
+      ln -fs ${NVM_LS_CURRENT_NPM_PATH} ${BASEDIR}/bin/;
     ;;
     "run")
       local provided_version
